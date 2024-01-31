@@ -1,1 +1,2 @@
+.gitignore
 cmd/server/.env
