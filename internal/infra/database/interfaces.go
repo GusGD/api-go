@@ -9,8 +9,9 @@ type UserDBInterface interface {
 
 type ProductDBInterface interface {
 	Create(product *entity.Product) error
-	FindAllProduct(page, limit int, sort string) ([]entity.Product, error)
-	FindByProductName(productName string) (*entity.Product, error)
+	FindAll(page, limit int, sort string) ([]entity.Product, error)
+	FindByName(productName string) (*entity.Product, error)
+	FindBytId(id string) (*entity.Product, error)
 	Update(product *entity.Product) error
 	Delete(id string) error
 }
