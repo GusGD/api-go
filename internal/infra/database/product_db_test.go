@@ -61,3 +61,68 @@ func TestFindAllProduct(t *testing.T) {
 	assert.Equal(t, "Product 21", products[0].Name)
 	assert.Equal(t, "Product 23", products[2].Name)
 }
+
+func TestFindByIdProduct(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
+	if err != nil {
+		t.Error(err)
+	}
+	db.AutoMigrate(&entity.Product{})
+	product, err := entity.NewProduct("testProduct", 10.98)
+	assert.NoError(t, err)
+	db.Create(product)
+	productDB := NewProduct(db)
+	product, err = productDB.FindByID(product.ID.String())
+	assert.NoError(t, err)
+	assert.Equal(t, "testProduct", product.Name)
+
+}
+func TestFindByNameProduct(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
+	if err != nil {
+		t.Error(err)
+	}
+	db.AutoMigrate(&entity.Product{})
+	product, err := entity.NewProduct("testProduct", 10.98)
+	assert.NoError(t, err)
+	db.Create(product)
+	productDB := NewProduct(db)
+	product, err = productDB.FindByName(product.Name)
+	assert.NoError(t, err)
+	assert.Equal(t, "testProduct", product.Name)
+}
+
+func TestUpdateProduct(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
+	if err != nil {
+		t.Error(err)
+	}
+	db.AutoMigrate(&entity.Product{})
+	product, err := entity.NewProduct("testProduct", 10.98)
+	assert.NoError(t, err)
+	db.Create(product)
+	productDB := NewProduct(db)
+	product.Name = "pRODUCT"
+	err = productDB.Update(product)
+	assert.NoError(t, err)
+	product, err = productDB.FindByID(product.ID.String())
+	assert.NoError(t, err)
+	assert.Equal(t, "pRODUCT", product.Name)
+}
+
+func TestDeleteProduct(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
+	if err != nil {
+		t.Error(err)
+	}
+	db.AutoMigrate(&entity.Product{})
+	product, err := entity.NewProduct("testProduct", 10.98)
+	assert.NoError(t, err)
+	db.Create(product)
+	productDB := NewProduct(db)
+	err = productDB.Delete(product)
+	assert.NoError(t, err)
+	product, err = productDB.FindByID(product.ID.String())
+	assert.Error(t, err)
+	assert.Empty(t, product)
+}
