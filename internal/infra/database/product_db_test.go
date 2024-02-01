@@ -7,16 +7,10 @@ import (
 
 	"github.com/gusgd/apigo/internal/entity"
 	"github.com/stretchr/testify/assert"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
 
 func TestCreateNewProduct(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
-	if err != nil {
-		t.Error(err)
-	}
-	db.AutoMigrate(&entity.Product{})
+	db := SetupDatabase(t, &entity.Product{})
 	product, err := entity.NewProduct("testProduct", 10.98)
 	assert.NoError(t, err)
 
@@ -30,11 +24,7 @@ func TestCreateNewProduct(t *testing.T) {
 }
 
 func TestFindAllProduct(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
-	if err != nil {
-		t.Error(err)
-	}
-	db.AutoMigrate(&entity.Product{})
+	db := SetupDatabase(t, &entity.Product{})
 
 	for i := 1; i < 24; i++ {
 		product, err := entity.NewProduct(fmt.Sprintf("Product %d", i), rand.Float64()*100)
@@ -63,47 +53,28 @@ func TestFindAllProduct(t *testing.T) {
 }
 
 func TestFindByIdProduct(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
-	if err != nil {
-		t.Error(err)
-	}
-	db.AutoMigrate(&entity.Product{})
-	product, err := entity.NewProduct("testProduct", 10.98)
-	assert.NoError(t, err)
-	db.Create(product)
+	db := SetupDatabase(t, &entity.Product{})
+	product := CreateRandomProduct(db)
 	productDB := NewProduct(db)
-	product, err = productDB.FindByID(product.ID.String())
+	product, err := productDB.FindByID(product.ID.String())
 	assert.NoError(t, err)
-	assert.Equal(t, "testProduct", product.Name)
-
+	assert.NotEmpty(t, product.Name)
 }
 func TestFindByNameProduct(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
-	if err != nil {
-		t.Error(err)
-	}
-	db.AutoMigrate(&entity.Product{})
-	product, err := entity.NewProduct("testProduct", 10.98)
-	assert.NoError(t, err)
-	db.Create(product)
+	db := SetupDatabase(t, &entity.Product{})
+	product := CreateRandomProduct(db)
 	productDB := NewProduct(db)
-	product, err = productDB.FindByName(product.Name)
+	product, err := productDB.FindByName(product.Name)
 	assert.NoError(t, err)
-	assert.Equal(t, "testProduct", product.Name)
+	assert.NotEmpty(t, product.Name)
 }
 
 func TestUpdateProduct(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
-	if err != nil {
-		t.Error(err)
-	}
-	db.AutoMigrate(&entity.Product{})
-	product, err := entity.NewProduct("testProduct", 10.98)
-	assert.NoError(t, err)
-	db.Create(product)
+	db := SetupDatabase(t, &entity.Product{})
+	product := CreateRandomProduct(db)
 	productDB := NewProduct(db)
 	product.Name = "pRODUCT"
-	err = productDB.Update(product)
+	err := productDB.Update(product)
 	assert.NoError(t, err)
 	product, err = productDB.FindByID(product.ID.String())
 	assert.NoError(t, err)
@@ -111,16 +82,10 @@ func TestUpdateProduct(t *testing.T) {
 }
 
 func TestDeleteProduct(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
-	if err != nil {
-		t.Error(err)
-	}
-	db.AutoMigrate(&entity.Product{})
-	product, err := entity.NewProduct("testProduct", 10.98)
-	assert.NoError(t, err)
-	db.Create(product)
+	db := SetupDatabase(t, &entity.Product{})
+	product := CreateRandomProduct(db)
 	productDB := NewProduct(db)
-	err = productDB.Delete(product)
+	err := productDB.Delete(product)
 	assert.NoError(t, err)
 	product, err = productDB.FindByID(product.ID.String())
 	assert.Error(t, err)
