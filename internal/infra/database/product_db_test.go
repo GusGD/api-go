@@ -55,11 +55,15 @@ func TestFindAllProduct(t *testing.T) {
 func TestFindByIdProduct(t *testing.T) {
 	db := SetupDatabase(t, &entity.Product{})
 	product := CreateRandomProduct(db)
+	product.Name = "Test Product"
 	productDB := NewProduct(db)
-	product, err := productDB.FindByID(product.ID.String())
+	err := productDB.Update(product)
 	assert.NoError(t, err)
-	assert.NotEmpty(t, product.Name)
+	retrievedProduct, _ := productDB.FindByID(product.ID.String())
+	assert.NotNil(t, product)
+	assert.Equal(t, "Test Product", retrievedProduct.Name)
 }
+
 func TestFindByNameProduct(t *testing.T) {
 	db := SetupDatabase(t, &entity.Product{})
 	product := CreateRandomProduct(db)
@@ -73,19 +77,19 @@ func TestUpdateProduct(t *testing.T) {
 	db := SetupDatabase(t, &entity.Product{})
 	product := CreateRandomProduct(db)
 	productDB := NewProduct(db)
-	product.Name = "pRODUCT"
+	product.Name = "Novo Nome"
 	err := productDB.Update(product)
 	assert.NoError(t, err)
-	product, err = productDB.FindByID(product.ID.String())
+	updatedProduct, err := productDB.FindByID(product.ID.String())
 	assert.NoError(t, err)
-	assert.Equal(t, "pRODUCT", product.Name)
+	assert.Equal(t, "Novo Nome", updatedProduct.Name)
 }
 
 func TestDeleteProduct(t *testing.T) {
 	db := SetupDatabase(t, &entity.Product{})
 	product := CreateRandomProduct(db)
 	productDB := NewProduct(db)
-	err := productDB.Delete(product)
+	err := productDB.Delete(product.ID.String())
 	assert.NoError(t, err)
 	product, err = productDB.FindByID(product.ID.String())
 	assert.Error(t, err)
