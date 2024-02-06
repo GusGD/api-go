@@ -28,10 +28,8 @@ func (p *Product) FindByName(productName string) (*entity.Product, error) {
 }
 func (p *Product) FindByID(id string) (*entity.Product, error) {
 	var product entity.Product
-	if err := p.DB.Where("id = ?", id).First(&product).Error; err != nil {
-		return nil, err
-	}
-	return &product, nil
+	err := p.DB.Where("id = ?", id).Error
+	return &product, err
 }
 
 func (p *Product) Update(product *entity.Product) error {
@@ -42,8 +40,8 @@ func (p *Product) Update(product *entity.Product) error {
 	return p.DB.Save(product).Error
 }
 
-func (p *Product) Delete(product *entity.Product) error {
-	_, err := p.FindByID(product.ID.String())
+func (p *Product) Delete(id string) error {
+	product, err := p.FindByID(id)
 	if err != nil {
 		return err
 	}
