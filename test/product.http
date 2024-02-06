@@ -2,6 +2,34 @@ POST http://localhost:8082/products
 Content-Type: application/json
 
 {
-  "name": "Product teste",
-  "price": 909.98
+  "name": "findname",
+  "price": 19.98
 }
+
+###
+
+GET http://localhost:8082/products
+Content-Type: application/json
+
+###
+
+GET http://localhost:8082/products/b7898229-8dc8-423f-8825-3fbf153f5b70
+Content-Type: application/json
+
+###
+
+GET http://localhost:8082/products/name/findname
+Content-Type: application/json
+###
+
+
+PUT  http://localhost:8082/products/b7898229-8dc8-423f-8825-3fbf153f5b70
+Content-Type: application/json
+
+{
+  "name": "Product UPDATE",
+  "price": 349.67
+}
+###
+
+DELETE  http://localhost:8082/products/b7898229-8dc8-423f-8825-3fbf153f5b70
