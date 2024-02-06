@@ -28,7 +28,7 @@ func (p *Product) FindByName(productName string) (*entity.Product, error) {
 }
 func (p *Product) FindByID(id string) (*entity.Product, error) {
 	var product entity.Product
-	err := p.DB.Where("id = ?", id).Error
+	err := p.DB.Where("id = ?", id).First(&product).Error
 	return &product, err
 }
 
