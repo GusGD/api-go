@@ -19,16 +19,16 @@ func (p *Product) Create(product *entity.Product) error {
 	return p.DB.Create(product).Error
 }
 
-func (p *Product) FindByName(productName string) (*entity.Product, error) {
+func (p *Product) FindByName(name string) (*entity.Product, error) {
 	var product entity.Product
-	if err := p.DB.Where("name = ?", productName).First(&product).Error; err != nil {
+	if err := p.DB.Where("name = ?", name).First(&product).Error; err != nil {
 		return nil, err
 	}
 	return &product, nil
 }
 func (p *Product) FindByID(id string) (*entity.Product, error) {
 	var product entity.Product
-	err := p.DB.Where("id = ?", id).First(&product).Error
+	err := p.DB.Where("id =?", id).First(&product).Error
 	return &product, err
 }
 
