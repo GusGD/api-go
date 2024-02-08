@@ -34,12 +34,16 @@ func main() {
 	r.Post("/users", userHandler.CreateUser)
 	r.Post("/users/generate_token", userHandler.GetJWT)
 	r.Get("/users/{email}", userHandler.GetUser)
-	r.Post("/products", productHandler.CreateProduct)
-	r.Get("/products", productHandler.GetProducts)
-	r.Get("/products/{id}", productHandler.GetProduct)
-	r.Get("/products/name/{name}", productHandler.GetProductName)
-	r.Put("/products/{id}", productHandler.UpdateProduct)
-	r.Delete("/products/{id}", productHandler.DeleteProduct)
+
+	r.Route("/products", func(r chi.Router) {
+		r.Post("/", productHandler.CreateProduct)
+		r.Get("/", productHandler.GetProducts)
+		r.Get("/{id}", productHandler.GetProduct)
+		r.Get("/name/{name}", productHandler.GetProductName)
+		r.Put("/{id}", productHandler.UpdateProduct)
+		r.Delete("/{id}", productHandler.DeleteProduct)
+	})
+
 	http.ListenAndServe(":8082", r)
 
 }
