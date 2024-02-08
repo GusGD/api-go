@@ -2,8 +2,8 @@ POST http://localhost:8082/users
 Content-Type: application/json
 
 {
-  "name": "User name",
-  "email": "test@email.com",
+  "name": "User namee",
+  "email": "test2@email.com",
   "password": "testpassword"
 }
 
@@ -13,7 +13,7 @@ POST http://localhost:8082/users/generate_token
 Content-Type: application/json
 
 {
-  "email": "test@email.com",
+  "email": "test2@email.com",
   "password": "testpassword"
 }
 
