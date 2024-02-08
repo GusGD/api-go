@@ -28,12 +28,13 @@ func main() {
 	productHandler := handlers.NewProductHandler(productDB)
 
 	userDB := database.NewUser(db)
-	userHandler := handlers.NewUserHandler(userDB, configs.TokenAuth, configs.JWTExperesIN)
+	userHandler := handlers.NewUserHandler(userDB)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-	// r.Use(LogRequest)
+	r.Use(middleware.WithValue("jwt", configs.TokenAuth))
+	r.Use(middleware.WithValue("JWTExperesIN", configs.JWTExperesIN))
 
 	r.Post("/users", userHandler.CreateUser)
 	r.Post("/users/generate_token", userHandler.GetJWT)
@@ -51,10 +52,3 @@ func main() {
 	})
 	http.ListenAndServe(":8082", r)
 }
-
-// func LogRequest(next http.Handler) http.Handler {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		log.Printf("Request: %s %s", r.Method, r.URL.Path)
-// 		next.ServeHTTP(w, r)
-// 	})
-// }
