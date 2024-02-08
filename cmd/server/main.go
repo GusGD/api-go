@@ -7,12 +7,30 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth"
 	"github.com/gusgd/apigo/configs"
+	_ "github.com/gusgd/apigo/docs"
 	"github.com/gusgd/apigo/internal/entity"
 	"github.com/gusgd/apigo/internal/infra/database"
 	"github.com/gusgd/apigo/internal/infra/webserver/handlers"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
+
+// @title           Products API
+// @version         1.0
+// @description     Product API with authentication
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   Gustavo de Oliveira
+// @contact.url    https://github.com/gusgd
+// @contact.email  si_gustavo@outlook.com
+
+// @host      localhost:8082
+// @BasePath  /
+
+// @securityDefinitions.apikey  ApiKeyAuth
+// @in header
+// @name Authorization
 
 func main() {
 	configs, err := configs.LoadConfig(".")
@@ -38,7 +56,6 @@ func main() {
 
 	r.Post("/users", userHandler.CreateUser)
 	r.Post("/users/generate_token", userHandler.GetJWT)
-	r.Get("/users/{email}", userHandler.GetUser)
 
 	r.Route("/products", func(r chi.Router) {
 		r.Use(jwtauth.Verifier(configs.TokenAuth))
@@ -50,5 +67,6 @@ func main() {
 		r.Put("/{id}", productHandler.UpdateProduct)
 		r.Delete("/{id}", productHandler.DeleteProduct)
 	})
+	r.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL("http://localhost:8082/docs/doc.json")))
 	http.ListenAndServe(":8082", r)
 }
