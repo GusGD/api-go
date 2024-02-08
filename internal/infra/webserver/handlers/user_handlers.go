@@ -4,21 +4,56 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/jwtauth"
 	"github.com/gusgd/apigo/internal/dto"
 	"github.com/gusgd/apigo/internal/entity"
 	"github.com/gusgd/apigo/internal/infra/database"
 )
 
 type UserHandler struct {
-	UserDB database.UserDBInterface
+	UserDB        database.UserDBInterface
+	Jwt           *jwtauth.JWTAuth
+	JwtExperiesIN int
 }
 
-func NewUserHandler(userDB database.UserDBInterface) *UserHandler {
+func NewUserHandler(userDB database.UserDBInterface, jwt *jwtauth.JWTAuth, JwtExperiesIN int) *UserHandler {
 	return &UserHandler{
-		UserDB: userDB,
+		UserDB:        userDB,
+		Jwt:           jwt,
+		JwtExperiesIN: JwtExperiesIN,
 	}
+}
+
+func (h *UserHandler) GetJWT(w http.ResponseWriter, r *http.Request) {
+	var user dto.GetJWTInput
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	u, err := h.UserDB.FindByEmail(user.Email)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+	}
+	if !u.ValidatePassword(user.Password) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	_, tokenString, _ := h.Jwt.Encode(map[string]interface{}{
+		"sub": u.ID.String(),
+		"exp": time.Now().Add(time.Second * time.Duration(h.JwtExperiesIN)).Unix(),
+	})
+	acessToken := struct {
+		AcessToken string `json:"acess_token"`
+	}{
+		AcessToken: tokenString,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(acessToken)
 }
 
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
